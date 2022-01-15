@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "jolly"
+version = "0.1.0"
+description = "Import modules and files straight from URLs."
+authors = ["GrandMoff100 <nlarsen23.student@gmail.com>"]
+packages = [
+    { include = "jolly" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+GitPython = "^3.1.26"
+click = "^8.0.3"
+
+[tool.poetry.dev-dependencies]
+isort = "^5.10.1"
+black = "^21.12b0"
+mypy = "^0.931"
+pylint = "^2.12.2"
+flake8 = "^4.0.1"
+
+[tool.poetry.scripts]
+jolly = "jolly.cli:cli"
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

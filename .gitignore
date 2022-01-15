@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# Repl.it
+.replit
+.breakpoints
+.upm
+
 # Distribution / packaging
 .Python
 build/
