@@ -3,18 +3,24 @@
 Import Python code from modules straight from the internet.
 
 ```py
+from jolly import init
+init()  # Initialize the Jolly environment
 
-# Single-Import Example
+mymodule = import_url('https://raw.githubusercontent.com/grandmoff/jolly/master/examples/helloworld.py')
 
-~flask @ "git://github.com/pallets/flask"
+# -> Hello, World!
+# -> I am in helloworld.py!
 
-app = flask.Flask(__name__)
+# Or you can use @= to import a module from a file
+# You can also import from zip files!
 
+zipped.hello @= "https://raw.githubusercontent.com/grandmoff/jolly/master/examples/out.zip"
 
-# Multi-Import Example
-url = "https://somewhere.com/path/to/zip/mymodule.zip"
+# Imports zipped.hello
 
-~ (a, b, c, foo) @ url
-
+# -> Inside zipped/__init__.py
+# -> Inside zipped/hello/__init__.py, importing .hello
+# -> Inside zipped/hello/hello.py
+# -> Inside zipped/hello/__init__.py (after importing .hello)
 
 ```
