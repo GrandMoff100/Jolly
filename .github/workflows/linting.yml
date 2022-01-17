@@ -24,9 +24,9 @@ jobs:
           python -m pip install poetry
           python -m poetry install
       - name: Run Black
-        run: black . --check
+        run: python -m poetry run black . --check
       - name: Run Isort
-        run: isort . --check-only
+        run: python -m poetry run isort . --check-only
       - name: Run Flake8
-        run: flake8 .
+        run: python -m poetry run flake8 .
       
