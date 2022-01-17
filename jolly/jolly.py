@@ -1,66 +1,68 @@
-import inspect
-from .importast import Importer
-from .memzip import MemLoader
-import types
-import ast
 import sys
-import zipfile
-import tarfile
 import io
+from .memimporter import MemImporter
+import time
+from .dirimporter import DirImporter
 import typing as t
-import functools
+
+try:
+    import urllib.request as requests
+    from urllib.error import HTTPError
+except ImportError:
+    import browser as requests
 
 
-def init(requester: t.Callable = None) -> None:
-    """
-    Initialize the jolly importer.
-    Use `import_url` to import modules from URLs, or use `mymodule @= "https://example.com/mymodule.py"`.
-    Zips are supported.
-    Currently, tarfiles are not supported.
-    """
-    backframe = inspect.currentframe().f_back
-    source = inspect.getsource(backframe)
-    source = "\n".join(source.split("\n")[backframe.f_lineno:])
+class Files:
+    @classmethod
+    def request(cls, url: str, *args, **kwargs) -> io.BytesIO:
+        requester = cls._requesters.get(
+            sys.implementation.name,
+            cls.default_requester
+        )
+        return requester(url, *args, **kwargs)
 
-    tree = ast.parse(source)
-    Importer().visit(tree)
-    ast.fix_missing_locations(tree)
-    compiled = compile(tree, backframe.f_globals['__name__'], 'exec')
-    exec(
-        compiled,
-        {"import_url": functools.partial(import_from_url, requester=requester or default_requester)},
-    )
-    sys.exit(0)
+    @staticmethod
+    def rustpython_requester(url: str, *args, **kwargs) -> io.BytesIO:
+        result = None
+
+        def finished(res):
+            nonlocal result
+            result = res
+
+        requests.fetch(
+            url,
+            *args,
+            **kwargs
+        ).then(finished)
+        while not result:
+            time.sleep(0.1)
+        return result
+
+    _requesters = {
+        "rustpython": rustpython_requester,
+    }
+
+    @staticmethod
+    def default_requester(url: str, *args, **kwargs) -> t.Tuple[io.BytesIO | None, int]:
+        try:
+            with requests.urlopen(url, *args, **kwargs) as resp:
+                return resp.read(), 200
+        except HTTPError as e:
+            return None, e.code
 
 
-def default_requester(url: str) -> bytes:
-    """Default requester for `import_from_url`/`import_url`."""
-    import requests as __r
-    return __r.get(url).content
-
-
-def import_from_url(
+def register_url(
         url: str,
-        name: str,
-        requester: t.Callable = default_requester,
-        insecure_warn: bool = True
-) -> types.ModuleType:
-    """Import a module from a URL. Zips are supported."""
-    if insecure_warn and url.startswith("http://"):
-        print("WARNING: Insecure import from %s" % url)
-    content = requester(url)
-    try:
-        contfile = io.BytesIO(content)
-        if zipfile.is_zipfile(contfile) or tarfile.is_tarfile(contfile):
-            importer = MemLoader(contfile)
-            sys.meta_path.insert(0, importer)
-            module = importer.load_module(name)
-        else:
-            module = types.ModuleType(name)
-            exec(content.decode("utf-8"), module.__dict__)
-    except Exception as e:
-        print("***| Failed to load module from url:", url, "\n   |", type(e).__name__, e)
-        sys.exit(1)
-    return module
-
-
+        subdir: str = None,  # For zips and tars
+        *args,
+        **kwargs
+) -> None:
+    """Register a URL to be imported from. Zips and tars are supported."""
+    if "." not in url.split("/")[-1]:  # Only files should have a suffix, not directories
+        importer = DirImporter(url, Files)
+    else:
+        target_file, code = Files.request(url, *args, **kwargs)
+        if code != 200:
+            raise ValueError(f"Could not fetch {url}")
+        importer = MemImporter(target_file, subdir=subdir)
+    sys.meta_path.append(importer)

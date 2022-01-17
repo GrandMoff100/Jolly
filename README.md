@@ -3,24 +3,30 @@
 Import Python code from modules straight from the internet.
 
 ```py
-from jolly import init
-init()  # Initialize the Jolly environment
+from jolly import register_url
 
-mymodule = import_url('https://raw.githubusercontent.com/grandmoff/jolly/master/examples/helloworld.py')
+# Register a URL of a directory of Python modules, or from single files.
+register_url("https://raw.githubusercontent.com/grandmoff100/jolly/master/examples/zipped")
 
-# -> Hello, World!
-# -> I am in helloworld.py!
+# Import from that URL
+import hello
 
-# Or you can use @= to import a module from a file
-# You can also import from zip files!
+# -> Inside zipped/hello/__init__.py, importing .hello
+# -> Inside zipped/hello/hello.py
+# -> Hello, world!
+# -> Inside zipped/hello/__init__.py (after importing .hello)
 
-zipped.hello @= "https://raw.githubusercontent.com/grandmoff/jolly/master/examples/out.zip"
+# You can also import from zip or tar files!
+register_url("https://raw.githubusercontent.com/grandmoff/jolly/master/examples/out.zip")
 
-# Imports zipped.hello
+import zipped.hello
 
 # -> Inside zipped/__init__.py
 # -> Inside zipped/hello/__init__.py, importing .hello
 # -> Inside zipped/hello/hello.py
 # -> Inside zipped/hello/__init__.py (after importing .hello)
-
 ```
+
+## TODO
+
+- [ ] Tests
