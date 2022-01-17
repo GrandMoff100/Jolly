@@ -13,7 +13,7 @@ class BaseImporter:
 
     def find_spec(self, fullname, path, *args) -> t.Optional[None]:
         """Called when an import is attempted"""
-        if self._mod_to_paths(fullname) is not None:
+        if self._mod_to_path(fullname) is not None:
             self.name = fullname
             return self
         return None
@@ -30,7 +30,7 @@ class BaseImporter:
 
     def construct_module(self, fullname) -> types.ModuleType:
         """Constructs modules and submodules"""
-        filename = self._mod_to_paths(fullname)
+        filename = self._mod_to_path(fullname)
         if filename is None:
             raise ImportError(fullname)
 
@@ -58,7 +58,7 @@ class BaseImporter:
         """Runs the module. Must be overridden"""
         ...
 
-    def _mod_to_paths(self, fullname):
+    def _mod_to_path(self, fullname):
         """Returns the path to the module. Must be overridden"""
         pass
 

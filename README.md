@@ -16,7 +16,7 @@ import hello
 # -> Hello, world!
 # -> Inside zipped/hello/__init__.py (after importing .hello)
 
-# You can also import from zip files!
+# You can also import from zip or tar files!
 register_url("https://raw.githubusercontent.com/grandmoff/jolly/master/examples/out.zip")
 
 import zipped.hello
@@ -25,5 +25,8 @@ import zipped.hello
 # -> Inside zipped/hello/__init__.py, importing .hello
 # -> Inside zipped/hello/hello.py
 # -> Inside zipped/hello/__init__.py (after importing .hello)
-
 ```
+
+## TODO
+
+- [ ] Tests
