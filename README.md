@@ -6,7 +6,7 @@ Import Python code from modules straight from the internet.
 from jolly import register_url
 
 # Register a URL of a directory of Python modules, or from single files.
-register_url("https://raw.githubusercontent.com/grandmoff100/jolly/master/examples/modulezip/")
+register_url("https://raw.githubusercontent.com/grandmoff100/jolly/master/examples/zipped")
 
 # Import from that URL
 import hello

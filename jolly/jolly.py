@@ -52,7 +52,7 @@ def register_url(
         **kwargs
 ) -> None:
     """Register a URL to be imported from. Zips are supported."""
-    if url.endswith("/"):
+    if "." not in url.split("/")[-1]:  # Only files should have a suffix, not directories
         importer = DirImporter(url)
     else:
         target_file = Files.request(url, *args, **kwargs)
